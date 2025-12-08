@@ -1,0 +1,300 @@
+
+<div class="min-h-screen bg-gray-900 text-gray-300 font-sans p-4 sm:p-6 lg:p-8">
+  <div class="max-w-7xl mx-auto">
+    <!-- Header -->
+    <header class="text-center mb-8">
+      <h1 class="text-4xl sm:text-5xl font-bold text-white tracking-tight">
+        <i class="fa-solid fa-mug-hot text-indigo-400"></i> Lazy Prompter
+      </h1>
+      <p class="text-lg text-gray-400 mt-2">Bikin Prompt AI Gak Pake Ribet + Gemini</p>
+    </header>
+
+    <!-- Main Grid Layout -->
+    <main class="grid grid-cols-1 lg:grid-cols-5 gap-8">
+      
+      <!-- Left Column: Controls -->
+      <div class="lg:col-span-3 space-y-6">
+
+        <!-- Presets -->
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 flex items-end gap-4">
+          <div class="flex-grow">
+            <label for="presetSelect" class="block text-sm font-medium text-indigo-400 mb-1"><i class="fa-solid fa-floppy-disk"></i> Preset Gaya</label>
+            <select id="presetSelect" [ngModel]="selectedPresetId()" (ngModelChange)="selectedPresetId.set($event)" class="w-full bg-gray-900 border border-gray-600 rounded-md shadow-sm py-2 px-3 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-white">
+              <option value="">-- Pilih Preset --</option>
+              @for(preset of presets(); track preset.id) {
+                <option [value]="preset.id">{{ preset.name }}</option>
+              }
+            </select>
+          </div>
+          <button (click)="savePreset()" class="h-10 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold rounded-md transition-colors" title="Simpan Preset"><i class="fa-solid fa-save"></i></button>
+          <button (click)="deletePreset()" class="h-10 px-4 bg-red-600 hover:bg-red-700 text-white font-semibold rounded-md transition-colors" title="Hapus Preset"><i class="fa-solid fa-trash"></i></button>
+        </div>
+
+        <!-- Tabs -->
+        <div class="flex bg-gray-800 border border-gray-700 rounded-lg p-1 space-x-1">
+          <button (click)="setTab('creation')" [class.bg-indigo-600]="activeTab() === 'creation'" [class.text-white]="activeTab() === 'creation'" class="flex-1 py-2 px-4 rounded-md text-center font-medium transition-colors hover:bg-gray-700">
+            <i class="fa-solid fa-paintbrush"></i> Penciptaan
+          </button>
+          <button (click)="setTab('editing')" [class.bg-indigo-600]="activeTab() === 'editing'" [class.text-white]="activeTab() === 'editing'" class="flex-1 py-2 px-4 rounded-md text-center font-medium transition-colors hover:bg-gray-700">
+            <i class="fa-solid fa-eraser"></i> Renovasi
+          </button>
+          <button (click)="setTab('history')" [class.bg-indigo-600]="activeTab() === 'history'" [class.text-white]="activeTab() === 'history'" class="flex-1 py-2 px-4 rounded-md text-center font-medium transition-colors hover:bg-gray-700">
+            <i class="fa-solid fa-clock-rotate-left"></i> Riwayat
+          </button>
+        </div>
+
+        <!-- Tab Panels -->
+        @if (activeTab() === 'creation') {
+        <div class="space-y-4">
+          <details class="bg-gray-800 border border-gray-700 rounded-lg" open>
+            <summary class="p-4 cursor-pointer font-semibold text-white flex justify-between items-center">
+              <span><i class="fa-solid fa-layer-group w-5 text-indigo-400"></i> 1. Pondasi & Gaya</span>
+            </summary>
+            <div class="p-4 border-t border-gray-700 space-y-4">
+              <!-- Subject -->
+              <div>
+                <div class="flex justify-between items-center mb-1">
+                  <label class="text-sm font-medium text-gray-400">Subjek Utama (Wajib)</label>
+                  <button (click)="enrich()" [disabled]="isEnriching()" class="px-2 py-1 text-xs font-semibold text-white bg-purple-600 hover:bg-purple-700 rounded-md flex items-center gap-1 disabled:opacity-50">
+                    <i class="fa-solid fa-sparkles"></i> Perkaya Ide
+                  </button>
+                </div>
+                <textarea [value]="primarySubject()" (input)="updateSignal(primarySubject, $event)" rows="2" placeholder="Contoh: Seekor naga mekanik tidur di atas tumpukan emas..." class="w-full bg-gray-900 border border-gray-600 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+              </div>
+              <!-- Styles -->
+              <div>
+                <label class="text-sm font-medium text-gray-400">Gaya Visual Umum</label>
+                <div class="flex gap-2 mt-1">
+                  <select (change)="addTag('style', $event)" class="flex-grow bg-gray-900 border border-gray-600 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                     <option value="">-- Tambah Gaya --</option>
+                     <optgroup label="Fotografi"><option>Photorealistic</option><option>Cinematic Realism</option><option>Macro Photography</option></optgroup>
+                     <optgroup label="Anime & Ilustrasi"><option>Studio Ghibli Style</option><option>Cyberpunk Anime</option><option>Oil Painting</option></optgroup>
+                     <optgroup label="3D & Digital"><option>Unreal Engine 5 Render</option><option>Low Poly</option></optgroup>
+                  </select>
+                </div>
+                <div class="flex flex-wrap gap-2 mt-2">
+                  @for(style of overallStyles(); track style) {
+                    <span class="bg-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-2">
+                      {{style}}
+                      <button (click)="removeTag('style', style)" class="text-indigo-200 hover:text-white">×</button>
+                    </span>
+                  }
+                </div>
+              </div>
+              <!-- Moods -->
+               <div>
+                 <label class="text-sm font-medium text-gray-400">Suasana / Mood</label>
+                 <input [value]="dominantMoods()" (input)="updateSignal(dominantMoods, $event)" type="text" placeholder="Contoh: mysterious, epic, gloomy" class="w-full bg-gray-900 border border-gray-600 rounded-md p-2 mt-1 focus:ring-indigo-500 focus:border-indigo-500">
+               </div>
+            </div>
+          </details>
+
+          <details class="bg-gray-800 border border-gray-700 rounded-lg">
+             <summary class="p-4 cursor-pointer font-semibold text-white flex justify-between items-center">
+                <span><i class="fa-solid fa-camera w-5 text-indigo-400"></i> 2. Kamera & Pencahayaan</span>
+             </summary>
+             <div class="p-4 border-t border-gray-700 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <select [value]="cameraCategory()" (change)="updateSignal(cameraCategory, $event); cameraModel.set(''); cameraLens.set('');" class="bg-gray-900 border border-gray-600 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500"><option value="">-- Kategori Kamera --</option>@for(cat of cameraCategories(); track cat){<option [value]="cat">{{cat}}</option>}</select>
+                <select [value]="cameraModel()" (change)="updateSignal(cameraModel, $event)" [disabled]="!cameraCategory()" class="bg-gray-900 border border-gray-600 rounded-md p-2 disabled:opacity-50 focus:ring-indigo-500 focus:border-indigo-500"><option value="">-- Model Kamera --</option>@for(model of cameraModels(); track model){<option [value]="model">{{model}}</option>}</select>
+                <select [value]="cameraLens()" (change)="updateSignal(cameraLens, $event)" [disabled]="!cameraCategory()" class="bg-gray-900 border border-gray-600 rounded-md p-2 disabled:opacity-50 focus:ring-indigo-500 focus:border-indigo-500"><option value="">-- Lensa --</option>@for(lens of cameraLenses(); track lens){<option [value]="lens">{{lens}}</option>}</select>
+                <select [value]="lighting()" (change)="updateSignal(lighting, $event)" class="bg-gray-900 border border-gray-600 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500"><option value="">-- Pencahayaan --</option><option>Golden Hour</option><option>Cinematic Lighting</option><option>Volumetric Lighting</option><option>Neon Lights</option><option>Rembrandt Lighting</option></select>
+             </div>
+          </details>
+
+          <details class="bg-gray-800 border border-gray-700 rounded-lg">
+            <summary class="p-4 cursor-pointer font-semibold text-white flex justify-between items-center">
+              <span><i class="fa-solid fa-cube w-5 text-indigo-400"></i> 3. Simulator Komposisi 3D</span>
+            </summary>
+            <div class="p-4 border-t border-gray-700 space-y-4">
+              <div #simContainerCreation class="w-full h-[300px] bg-gray-900 rounded-md relative border border-gray-600">
+                <div class="absolute bottom-2 left-2 bg-black bg-opacity-50 text-indigo-300 text-xs px-2 py-1 rounded">{{ sceneStatus().shot }}, {{ sceneStatus().angle }}, {{ sceneStatus().view }}</div>
+              </div>
+              <div class="space-y-2">
+                <label class="text-sm font-medium text-gray-400">Jarak (Shot): <span class="font-mono text-indigo-400">{{sceneStatus().shot}}</span></label>
+                <input type="range" [value]="simDistance()" (input)="updateSlider(simDistance, $event)" min="1.5" max="12" step="0.1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+              </div>
+              <div class="space-y-2">
+                <label class="text-sm font-medium text-gray-400">Ketinggian (Angle): <span class="font-mono text-indigo-400">{{sceneStatus().angle}}</span></label>
+                <input type="range" [value]="simHeight()" (input)="updateSlider(simHeight, $event)" min="-5" max="5" step="0.1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+              </div>
+              <div class="space-y-2">
+                <label class="text-sm font-medium text-gray-400">Orbit (Viewpoint): <span class="font-mono text-indigo-400">{{sceneStatus().view}}</span></label>
+                <input type="range" [value]="simOrbit()" (input)="updateSlider(simOrbit, $event)" min="-3.14" max="3.14" step="0.1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+              </div>
+            </div>
+          </details>
+
+           <details class="bg-gray-800 border border-gray-700 rounded-lg">
+             <summary class="p-4 cursor-pointer font-semibold text-white flex justify-between items-center">
+               <span><i class="fa-solid fa-wand-magic-sparkles w-5 text-indigo-400"></i> 4. Detail & Artistik</span>
+             </summary>
+             <div class="p-4 border-t border-gray-700 space-y-4">
+                <div>
+                   <label class="text-sm font-medium text-gray-400">Detail & Tekstur</label>
+                   <div class="flex gap-2 mt-1">
+                      <select (change)="addTag('detail', $event)" class="flex-grow bg-gray-900 border border-gray-600 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                         <option value="">-- Tambah Detail --</option>
+                         <option>Highly Detailed</option><option>Intricate</option><option>8k Resolution</option><option>Sharp Focus</option><option>Film Grain</option>
+                      </select>
+                   </div>
+                   <div class="flex flex-wrap gap-2 mt-2">
+                     @for(detail of detailTextures(); track detail) {
+                       <span class="bg-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full flex items-center gap-2">
+                         {{detail}}
+                         <button (click)="removeTag('detail', detail)" class="text-indigo-200 hover:text-white">×</button>
+                       </span>
+                     }
+                   </div>
+                </div>
+                <div>
+                  <label class="text-sm font-medium text-gray-400">Terinspirasi Oleh</label>
+                  <input [value]="artistRef()" (input)="updateSignal(artistRef, $event)" type="text" placeholder="Contoh: Greg Rutkowski, H.R. Giger" class="w-full bg-gray-900 border border-gray-600 rounded-md p-2 mt-1 focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+             </div>
+           </details>
+
+           <details class="bg-gray-800 border border-gray-700 rounded-lg">
+             <summary class="p-4 cursor-pointer font-semibold text-white flex justify-between items-center">
+                <span><i class="fa-solid fa-ban w-5 text-indigo-400"></i> 5. Negative Prompt</span>
+             </summary>
+             <div class="p-4 border-t border-gray-700">
+                <label class="text-sm font-medium text-gray-400">Elemen yang TIDAK diinginkan</label>
+                <textarea [value]="negativePrompt()" (input)="updateSignal(negativePrompt, $event)" rows="2" placeholder="Contoh: blurry, bad anatomy, text, watermark" class="w-full bg-gray-900 border border-gray-600 rounded-md p-2 mt-1 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+             </div>
+           </details>
+        </div>
+        }
+
+        @if (activeTab() === 'editing') {
+          <div class="bg-gray-800 border border-gray-700 rounded-lg p-4 space-y-4">
+             <h3 class="text-lg font-semibold text-indigo-400"><i class="fa-solid fa-wand-magic"></i> Mode Renovasi</h3>
+             <p class="text-sm text-gray-400">Gunakan mode ini untuk <strong>Inpainting</strong>, <strong>Generative Fill</strong>, atau fitur <strong>Vary Region</strong>. Fokus pada objek perubahan, bukan keseluruhan gambar.</p>
+             <select [value]="editTaskType()" (change)="updateSignal(editTaskType, $event)" class="w-full bg-gray-900 border border-gray-600 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                <option value="change">Mengganti Objek</option>
+                <option value="add">Menambah Detail/Elemen</option>
+                <option value="remove">Menghapus/Membersihkan</option>
+                <option value="clothes">Mengganti Pakaian</option>
+                <option value="background">Mengubah Latar</option>
+             </select>
+             <textarea [value]="editSubject()" (input)="updateSignal(editSubject, $event)" rows="3" placeholder="Contoh: A red vintage scarf, blue neon sunglasses..." class="w-full bg-gray-900 border border-gray-600 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500"></textarea>
+             
+             <details class="bg-gray-900 border border-gray-700 rounded-lg">
+                <summary class="p-4 cursor-pointer font-semibold text-white flex justify-between items-center">
+                   <span><i class="fa-solid fa-cube w-5 text-indigo-400"></i> Simulator Sudut Kamera (3D)</span>
+                </summary>
+                <div class="p-4 border-t border-gray-700 space-y-4">
+                  <div #simContainerEditing class="w-full h-[300px] bg-gray-900 rounded-md relative border border-gray-600"></div>
+                </div>
+             </details>
+
+             <div class="space-y-2">
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" [checked]="editSeamless()" (change)="updateSignal(editSeamless, $event)" class="rounded bg-gray-700 border-gray-500 text-indigo-600 focus:ring-indigo-500"> Seamless Blend</label>
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" [checked]="editMatchLighting()" (change)="updateSignal(editMatchLighting, $event)" class="rounded bg-gray-700 border-gray-500 text-indigo-600 focus:ring-indigo-500"> Match Lighting</label>
+                <label class="flex items-center gap-2 text-sm"><input type="checkbox" [checked]="editHighDetail()" (change)="updateSignal(editHighDetail, $event)" class="rounded bg-gray-700 border-gray-500 text-indigo-600 focus:ring-indigo-500"> High Detail</label>
+             </div>
+
+             <input [value]="editNegative()" (input)="updateSignal(editNegative, $event)" type="text" placeholder="Negative Prompt (Khusus Edit)" class="w-full bg-gray-900 border border-gray-600 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500">
+          </div>
+        }
+
+        @if (activeTab() === 'history') {
+        <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-indigo-400"><i class="fa-solid fa-clock-rotate-left"></i> Riwayat Prompt</h3>
+            <button (click)="clearHistory()" class="text-sm text-red-400 hover:text-red-300">Hapus Semua</button>
+          </div>
+          <div class="space-y-3 max-h-96 overflow-y-auto">
+            @for(item of history(); track item.time) {
+              <div class="bg-gray-900 p-3 rounded-md text-sm border-l-2 border-indigo-500">
+                <div class="text-xs text-gray-500 mb-1">{{item.time}}</div>
+                <p class="text-gray-300">{{item.text}}</p>
+              </div>
+            } @empty {
+              <p class="text-gray-500 italic">Belum ada riwayat.</p>
+            }
+          </div>
+        </div>
+        }
+
+        <!-- Shared Settings -->
+        <details class="bg-gray-800 border border-gray-700 rounded-lg" open>
+          <summary class="p-4 cursor-pointer font-semibold text-white flex justify-between items-center">
+            <span><i class="fa-solid fa-sliders w-5 text-indigo-400"></i> Parameter & Format Output</span>
+          </summary>
+          <div class="p-4 border-t border-gray-700 space-y-4">
+             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                 <div>
+                    <label class="text-sm font-medium text-gray-400">Mode Output</label>
+                    <select [value]="outputMode()" (change)="updateSignal(outputMode, $event)" class="w-full mt-1 bg-gray-900 border border-gray-600 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                      <option value="general">General (AR Saja)</option>
+                      <option value="midjourney">MidJourney</option>
+                      <option value="json">JSON Format</option>
+                    </select>
+                 </div>
+                 <div>
+                    <label class="text-sm font-medium text-gray-400">Aspect Ratio (--ar)</label>
+                    <select [value]="aspectRatio()" (change)="updateSignal(aspectRatio, $event)" class="w-full mt-1 bg-gray-900 border border-gray-600 rounded-md p-2 focus:ring-indigo-500 focus:border-indigo-500">
+                      <option value="">Default (1:1)</option><option value="16:9">16:9 (Widescreen)</option><option value="9:16">9:16 (Portrait)</option><option value="4:3">4:3 (Classic)</option><option value="2.39:1">2.39:1 (Cinema)</option>
+                    </select>
+                 </div>
+             </div>
+            @if(outputMode() === 'midjourney') {
+              <div class="border-t border-gray-700 pt-4 space-y-4">
+                 <div class="space-y-2">
+                   <label class="text-sm font-medium text-gray-400">Stylize (--s): <span class="font-mono text-indigo-400">{{mjStylize()}}</span></label>
+                   <input type="range" [value]="mjStylize()" (input)="updateSlider(mjStylize, $event)" min="0" max="1000" step="50" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                 </div>
+                 <div class="space-y-2">
+                   <label class="text-sm font-medium text-gray-400">Chaos (--c): <span class="font-mono text-indigo-400">{{mjChaos()}}</span></label>
+                   <input type="range" [value]="mjChaos()" (input)="updateSlider(mjChaos, $event)" min="0" max="100" step="1" class="w-full h-2 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-indigo-600">
+                 </div>
+                 <label class="flex items-center gap-2 text-sm"><input type="checkbox" [checked]="mjNiji()" (change)="updateSignal(mjNiji, $event)" class="rounded bg-gray-700 border-gray-500 text-indigo-600 focus:ring-indigo-500"> Gunakan Model Niji (--niji 6)</label>
+              </div>
+            }
+          </div>
+        </details>
+        
+        <div class="flex justify-end">
+            <button (click)="resetForm()" class="px-4 py-2 bg-red-800 hover:bg-red-700 text-white font-semibold rounded-md transition-colors flex items-center gap-2"><i class="fa-solid fa-trash"></i> Reset Form</button>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Output -->
+      <div class="lg:col-span-2">
+        <div class="sticky top-8 space-y-4">
+          <div class="bg-gray-800 border border-gray-700 rounded-lg p-4">
+            <div class="flex justify-between items-center mb-2">
+              <h3 class="text-lg font-semibold text-indigo-400"><i class="fa-solid fa-terminal"></i> Live Output</h3>
+              <div class="flex bg-gray-900 border border-gray-700 rounded-md p-0.5">
+                 <button (click)="viewLanguage.set('en')" [class.bg-indigo-600]="viewLanguage() === 'en'" class="px-2 py-0.5 text-xs rounded-sm transition-colors">🇺🇸 EN</button>
+                 <button (click)="viewLanguage.set('id')" [class.bg-indigo-600]="viewLanguage() === 'id'" class="px-2 py-0.5 text-xs rounded-sm transition-colors">🇮🇩 ID</button>
+              </div>
+            </div>
+            <textarea readonly [value]="displayedPrompt()" class="w-full h-48 bg-gray-900 border border-gray-600 rounded-md p-2 font-mono text-sm text-gray-300 resize-none"></textarea>
+          </div>
+          <div class="space-y-2">
+             <button (click)="copyPrompt()" class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md transition-colors flex items-center justify-center gap-2"><i class="fa-solid fa-copy"></i> Salin Prompt</button>
+             <button (click)="polish()" [disabled]="isPolishing()" class="w-full py-3 px-4 bg-purple-600 hover:bg-purple-700 text-white font-bold rounded-md transition-colors flex items-center justify-center gap-2 disabled:opacity-50">
+                <i class="fa-solid fa-wand-sparkles"></i> Poles dengan Gemini
+             </button>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="text-center mt-12 text-gray-500 text-sm">
+      <p>© 2025 Lazy Prompter. Powered by Gemini API.</p>
+    </footer>
+
+    <!-- Toast Notification -->
+    @if(toastMessage()) {
+      <div class="fixed bottom-5 left-1/2 -translate-x-1/2 bg-gray-700 border border-indigo-500 text-white px-6 py-3 rounded-full shadow-lg text-sm animate-bounce">
+        {{ toastMessage() }}
+      </div>
+    }
+
+  </div>
+</div>

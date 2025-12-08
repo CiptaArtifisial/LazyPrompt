@@ -1,0 +1,68 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lazy Prompter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+  <style>
+    /* Custom scrollbar for a more integrated look */
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1f2937; /* bg-gray-800 */
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #4f46e5; /* bg-indigo-600 */
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #6366f1; /* bg-indigo-500 */
+    }
+    /* Custom styles for details/summary accordion arrow */
+    details > summary {
+      list-style: none;
+    }
+    details > summary::-webkit-details-marker {
+      display: none;
+    }
+    details > summary::after {
+      content: '\f078';
+      font-family: "Font Awesome 6 Free";
+      font-weight: 900;
+      transition: transform 0.2s;
+      color: #9ca3af; /* text-gray-400 */
+    }
+    details[open] > summary::after {
+      transform: rotate(180deg);
+      color: #818cf8; /* text-indigo-400 */
+    }
+  </style>
+<script type="importmap">
+{
+  "imports": {
+    "rxjs": "https://aistudiocdn.com/rxjs@^7.8.2?conditions=es2015",
+    "rxjs/operators": "https://aistudiocdn.com/rxjs@^7.8.2/operators?conditions=es2015",
+    "rxjs/ajax": "https://aistudiocdn.com/rxjs@^7.8.2/ajax?conditions=es2015",
+    "rxjs/webSocket": "https://aistudiocdn.com/rxjs@^7.8.2/webSocket?conditions=es2015",
+    "rxjs/testing": "https://aistudiocdn.com/rxjs@^7.8.2/testing?conditions=es2015",
+    "rxjs/fetch": "https://aistudiocdn.com/rxjs@^7.8.2/fetch?conditions=es2015",
+    "@angular/compiler": "https://next.esm.sh/@angular/compiler@^21.0.3?external=rxjs",
+    "@google/genai": "https://next.esm.sh/@google/genai@^1.31.0?external=rxjs",
+    "@angular/common": "https://next.esm.sh/@angular/common@^21.0.3?external=rxjs",
+    "@angular/common/http": "https://next.esm.sh/@angular/common@^21.0.3/http?external=rxjs",
+    "@angular/platform-browser": "https://next.esm.sh/@angular/platform-browser@^21.0.3?external=rxjs",
+    "three": "https://next.esm.sh/three@^0.181.2?external=rxjs",
+    "@angular/core": "https://next.esm.sh/@angular/core@^21.0.3?external=rxjs"
+  }
+}
+</script>
+</head>
+<body class="bg-gray-900 font-sans text-gray-200 antialiased">
+  <app-root></app-root>
+</body>
+</html>

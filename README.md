@@ -3,7 +3,7 @@
 
 An intelligent AI prompt assistant designed to help artists and enthusiasts craft perfect, detailed prompts for image generation with ease. This app features a minimalist dark UI, a 3D composition simulator, and is powered by the Google Gemini API.
 
-![Lazy Prompter Screenshot](https://i.imgur.com/your-screenshot.png) <!-- Replace with a real screenshot URL -->
+![Lazy Prompter Screenshot](https://github.com/CiptaArtifisial/LazyPrompt/blob/cbac3815302f5e80b3d7581028bd4e19678d63c9/Screenshot%202025-12-09%20at%2011.17.28.png)) <!-- Replace with a real screenshot URL -->
 
 ## ✨ Key Features
 

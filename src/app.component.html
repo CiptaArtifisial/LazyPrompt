@@ -1,5 +1,37 @@
 
-<div class="min-h-screen bg-gray-900 text-gray-300 font-sans p-4 sm:p-6 lg:p-8">
+<!-- API Key Modal -->
+@if (!geminiService.isInitialized()) {
+  <div class="fixed inset-0 bg-gray-900 bg-opacity-90 z-50 flex items-center justify-center p-4">
+    <div class="bg-gray-800 border border-gray-700 rounded-lg shadow-xl p-6 w-full max-w-md text-center">
+      <h2 class="text-2xl font-bold text-white mb-2">
+        <i class="fa-solid fa-key text-indigo-400"></i> Masukkan API Key
+      </h2>
+      <p class="text-gray-400 mb-4">
+        Aplikasi ini butuh API Key Google Gemini untuk berfungsi. Key Anda disimpan di browser & tidak pernah dikirim ke server kami.
+      </p>
+      <div class="space-y-4">
+        <input 
+          type="password" 
+          [value]="apiKeyInput()" 
+          (input)="updateSignal(apiKeyInput, $event)"
+          placeholder="Masukkan Google Gemini API Key Anda"
+          class="w-full bg-gray-900 border border-gray-600 rounded-md p-3 text-center focus:ring-indigo-500 focus:border-indigo-500"
+        />
+        <button 
+          (click)="submitApiKey()" 
+          class="w-full py-3 px-4 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-md transition-colors"
+        >
+          Simpan & Lanjutkan
+        </button>
+      </div>
+      <a href="https://aistudio.google.com/app/apikey" target="_blank" class="block text-sm text-indigo-400 hover:underline mt-4">
+        Dapatkan API Key dari Google AI Studio
+      </a>
+    </div>
+  </div>
+}
+
+<div class="min-h-screen bg-gray-900 text-gray-300 font-sans p-4 sm:p-6 lg:p-8" [class.blur-sm]="!geminiService.isInitialized()">
   <div class="max-w-7xl mx-auto">
     <!-- Header -->
     <header class="text-center mb-8">
@@ -254,7 +286,8 @@
           </div>
         </details>
         
-        <div class="flex justify-end">
+        <div class="flex justify-between items-center">
+            <button (click)="geminiService.clearApiKey()" class="px-4 py-2 text-sm text-gray-400 hover:text-white hover:bg-gray-700 rounded-md transition-colors">Ganti API Key</button>
             <button (click)="resetForm()" class="px-4 py-2 bg-red-800 hover:bg-red-700 text-white font-semibold rounded-md transition-colors flex items-center gap-2"><i class="fa-solid fa-trash"></i> Reset Form</button>
         </div>
 

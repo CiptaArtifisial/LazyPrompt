@@ -11,7 +11,6 @@ import {
   effect,
   ChangeDetectorRef,
   untracked,
-  // FIX: Import WritableSignal to resolve type errors for signal inputs in methods.
   WritableSignal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -39,7 +38,7 @@ type ViewLang = 'en' | 'id';
 })
 export class AppComponent implements AfterViewInit {
   // Services
-  private geminiService = inject(GeminiService);
+  geminiService = inject(GeminiService);
   private lsService = inject(LocalStorageService);
   private sceneService = inject(ThreeDSceneService);
   private cdr = inject(ChangeDetectorRef);
@@ -53,6 +52,7 @@ export class AppComponent implements AfterViewInit {
   toastMessage = signal('');
   isEnriching = signal(false);
   isPolishing = signal(false);
+  apiKeyInput = signal('');
 
   // Prompt Cache for dual language
   promptCache = signal<PolishedPrompt | null>(null);
@@ -221,6 +221,10 @@ export class AppComponent implements AfterViewInit {
   }
 
   // Methods
+  submitApiKey() {
+    this.geminiService.initialize(this.apiKeyInput());
+  }
+  
   setTab(tab: AppTab) {
     this.activeTab.set(tab);
     // Move the canvas

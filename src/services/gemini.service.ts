@@ -1,5 +1,5 @@
 
-import { Injectable } from '@angular/core';
+import { Injectable, signal } from '@angular/core';
 import { GoogleGenAI, Type } from "@google/genai";
 
 export interface PolishedPrompt {
@@ -7,19 +7,36 @@ export interface PolishedPrompt {
   id: string;
 }
 
+const API_KEY_STORAGE = 'gemini_api_key';
+
 @Injectable({ providedIn: 'root' })
 export class GeminiService {
-  private ai: GoogleGenAI;
+  private ai: GoogleGenAI | undefined;
+  public isInitialized = signal(false);
 
   constructor() {
-    // IMPORTANT: The API key is injected via environment variables.
-    // Do not hardcode or expose it in the frontend.
-    const apiKey = process.env.API_KEY;
-    if (!apiKey) {
-      console.error("API_KEY environment variable not set.");
-      // In a real app, you might want to handle this more gracefully.
+    // Try to initialize from localStorage on startup
+    const storedKey = localStorage.getItem(API_KEY_STORAGE);
+    if (storedKey) {
+      this.initialize(storedKey);
     }
-    this.ai = new GoogleGenAI({ apiKey: apiKey! });
+  }
+
+  initialize(apiKey: string) {
+    if (!apiKey) {
+        console.error("Attempted to initialize Gemini service with no API key.");
+        this.isInitialized.set(false);
+        return;
+    }
+    this.ai = new GoogleGenAI({ apiKey: apiKey });
+    localStorage.setItem(API_KEY_STORAGE, apiKey);
+    this.isInitialized.set(true);
+  }
+
+  clearApiKey() {
+    localStorage.removeItem(API_KEY_STORAGE);
+    this.ai = undefined;
+    this.isInitialized.set(false);
   }
 
   async enrichIdea(subject: string): Promise<string> {
@@ -72,7 +89,8 @@ export class GeminiService {
       const result = JSON.parse(jsonString);
       return result as PolishedPrompt;
 
-    } catch (error) {
+    } catch (error)
+    {
       console.error("Gemini API Error (polishPrompt):", error);
       throw new Error("Failed to polish prompt with Gemini.");
     }

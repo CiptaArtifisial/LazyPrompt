@@ -15,6 +15,7 @@ import {
   WritableSignal
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { GeminiService, PolishedPrompt } from './services/gemini.service';
 import { LocalStorageService, HistoryItem, Preset } from './services/local-storage.service';
 import { ThreeDSceneService, SceneStatus } from './services/three-d-scene.service';
@@ -34,7 +35,7 @@ type ViewLang = 'en' | 'id';
   selector: 'app-root',
   templateUrl: './app.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [CommonModule]
+  imports: [CommonModule, FormsModule]
 })
 export class AppComponent implements AfterViewInit {
   // Services
